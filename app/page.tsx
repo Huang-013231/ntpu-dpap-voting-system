@@ -1,64 +1,61 @@
-import { Chat } from './chat'
-import { FileExplorer } from './file-explorer'
-import { Header } from './header'
-import { Horizontal, Vertical } from '@/components/layout/panels'
-import { Logs } from './logs'
-import { Preview } from './preview'
-import { TabContent, TabItem } from '@/components/tabs'
-import { Welcome } from '@/components/modals/welcome'
-import { cookies } from 'next/headers'
-import { getHorizontal, getVertical } from '@/components/layout/sizing'
-import { hideBanner } from '@/app/actions'
+import React, { useState } from 'react';
 
-export default async function Page() {
-  const store = await cookies()
-  const banner = store.get('banner-hidden')?.value !== 'true'
-  const horizontalSizes = getHorizontal(store)
-  const verticalSizes = getVertical(store)
+export default function ElectionPage() {
+  const [votes, setVotes] = useState({ candidate1: 0, candidate2: 0, candidate3: 0 });
+  const [voted, setVoted] = useState(false);
+
+  const handleVote = (candidate: keyof typeof votes) => {
+    setVotes(prev => ({ ...prev, [candidate]: prev[candidate] + 1 }));
+    setVoted(true);
+    alert("感謝您的參與！投票已成功送出。");
+  };
+
+  const total = votes.candidate1 + votes.candidate2 + votes.candidate3;
+  const getPercent = (count: number) => total === 0 ? 0 : Math.round((count / total) * 100);
+
   return (
-    <>
-      <Welcome defaultOpen={banner} onDismissAction={hideBanner} />
-      <div className="flex flex-col h-screen max-h-screen overflow-hidden p-2 space-x-2">
-        <Header className="flex items-center w-full" />
-        <ul className="flex space-x-5 font-mono text-sm tracking-tight px-1 py-2 md:hidden">
-          <TabItem tabId="chat">Chat</TabItem>
-          <TabItem tabId="preview">Preview</TabItem>
-          <TabItem tabId="file-explorer">File Explorer</TabItem>
-          <TabItem tabId="logs">Logs</TabItem>
-        </ul>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', padding: '40px 20px', fontFamily: '"Noto Sans TC", sans-serif' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '30px' }}>
+        
+        <header style={{ textAlign: 'center', borderBottom: '3px solid #1a365d', marginBottom: '30px', paddingBottom: '20px' }}>
+          <h1 style={{ color: '#1a365d', fontSize: '24px', margin: '0' }}>國立臺北大學公共行政暨政策學系</h1>
+          <h2 style={{ color: '#2c5282', fontSize: '20px', marginTop: '10px' }}>系學會正副會長選舉</h2>
+        </header>
 
-        {/* Mobile layout tabs taking the whole space*/}
-        <div className="flex flex-1 w-full overflow-hidden pt-2 md:hidden">
-          <TabContent tabId="chat" className="flex-1">
-            <Chat className="flex-1 overflow-hidden" />
-          </TabContent>
-          <TabContent tabId="preview" className="flex-1">
-            <Preview className="flex-1 overflow-hidden" />
-          </TabContent>
-          <TabContent tabId="file-explorer" className="flex-1">
-            <FileExplorer className="flex-1 overflow-hidden" />
-          </TabContent>
-          <TabContent tabId="logs" className="flex-1">
-            <Logs className="flex-1 overflow-hidden" />
-          </TabContent>
+        <div style={{ display: 'grid', gap: '20px' }}>
+          {[
+            { id: 'candidate1', label: '1 號候選人' },
+            { id: 'candidate2', label: '2 號候選人' },
+            { id: 'candidate3', label: '3 號候選人' }
+          ].map((item) => (
+            <div key={item.id} style={{ padding: '20px', border: '1px solid #e2e8f0', borderRadius: '10px', transition: '0.3s' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#2d3748' }}>{item.label}</span>
+                <span style={{ color: '#4a5568' }}>目前得票：{votes[item.id as keyof typeof votes]} 票 ({getPercent(votes[item.id as keyof typeof votes])}%)</span>
+              </div>
+              
+              <div style={{ background: '#edf2f7', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '15px' }}>
+                <div style={{ background: '#2b6cb0', height: '100%', width: `${getPercent(votes[item.id as keyof typeof votes])}%`, transition: 'width 0.8s ease-out' }} />
+              </div>
+
+              {!voted && (
+                <button 
+                  onClick={() => handleVote(item.id as keyof typeof votes)}
+                  style={{ width: '100%', padding: '10px', backgroundColor: '#1a365d', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', cursor: 'pointer' }}
+                >
+                  投給此候選人
+                </button>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* Desktop layout with horizontal and vertical panels */}
-        <div className="hidden flex-1 w-full min-h-0 overflow-hidden pt-2 md:flex">
-          <Horizontal
-            defaultLayout={horizontalSizes ?? [50, 50]}
-            left={<Chat className="flex-1 overflow-hidden" />}
-            right={
-              <Vertical
-                defaultLayout={verticalSizes ?? [33.33, 33.33, 33.33]}
-                top={<Preview className="flex-1 overflow-hidden" />}
-                middle={<FileExplorer className="flex-1 overflow-hidden" />}
-                bottom={<Logs className="flex-1 overflow-hidden" />}
-              />
-            }
-          />
-        </div>
+        {voted && (
+          <div style={{ marginTop: '30px', padding: '15px', backgroundColor: '#f0fff4', color: '#276749', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold' }}>
+            您已完成投票，感謝您的參與！
+          </div>
+        )}
       </div>
-    </>
-  )
+    </div>
+  );
 }
