@@ -25,9 +25,9 @@ export default function ElectionPage() {
 
         <div style={{ display: 'grid', gap: '20px' }}>
           {[
-            { id: 'candidate1', label: '1 號候選人' },
-            { id: 'candidate2', label: '2 號候選人' },
-            { id: 'candidate3', label: '3 號候選人' }
+            { id: 'candidate1', label: '1 號 王小明' },
+            { id: 'candidate2', label: '2 號 陳筱玲' },
+            { id: 'candidate3', label: '3 號 林曉琪' }
           ].map((item) => (
             <div key={item.id} style={{ padding: '20px', border: '1px solid #e2e8f0', borderRadius: '10px', transition: '0.3s' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
